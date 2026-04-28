@@ -1,95 +1,91 @@
 import json
 import os
-from werkzeug.utils import secure_filename
-from flask import Flask, render_template, session, request, flash, redirect
-import flask
-from sklearn.preprocessing import LabelEncoder
-import pickle
-from sklearn.preprocessing import StandardScaler
-import sklearn.externals
-import joblib
-from sklearn.ensemble import RandomForestClassifier
-import pandas as pd
-import joblib
-with open('config.json', 'r') as c:
-    wparams = json.load(c)["params"]
-import numpy as np
+from flask import Flask, render_template, session, request, flash, redirect, url_for
+from utils.ml_model import StudentModel
 
+# Initialize Flask App
 app = Flask(__name__, template_folder='template', static_folder='static')
-app.secret_key = 'super-secret-key'
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-123')
 
+# Load Configuration
+try:
+    with open('config.json', 'r') as c:
+        config = json.load(c)
+        wparams = config.get("params", {})
+except FileNotFoundError:
+    wparams = {"admin_user": "admin", "admin_password": "password"}
 
-
-
-
-
-Model  = pickle.load(open(r'model.sav', 'rb'))# rb is read in binary
-
-
-def model_predict(sex, age, address, Medu, Fedu, traveltime, failures,
-       paid, higher, internet, goout, G1, G2, model):
-    x_train=[sex, age, address, Medu, Fedu, traveltime, failures,
-       paid, higher, internet, goout, G1, G2]
-    x_train=np.array(x_train)
-    x_train=np.reshape(x_train,(-1,13))
-    df=pd.DataFrame(x_train,columns=['sex', 'age', 'address', 'Medu', 'Fedu', 'traveltime', 'failures',
-       'paid', 'higher', 'internet', 'goout', 'G1', 'G2'] )
-    
-    preds = model.predict(df)
-
-    return preds[0] #output
-
+# Initialize Model
+try:
+    model_handler = StudentModel('model.sav')
+except Exception as e:
+    print(f"CRITICAL: Could not load model: {e}")
+    model_handler = None
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    
     if request.method == "POST":
         username = request.form.get("uname")
         userpass = request.form.get("pass")
-        if username == wparams['admin_user'] and userpass == wparams['admin_password']:
-            # set the session variable
+        
+        if username == wparams.get('admin_user') and userpass == wparams.get('admin_password'):
             session['user'] = username
-            return render_template("index.html", params=wparams)
+            return redirect(url_for('dashboard'))
+        else:
+            flash("Invalid credentials. Please try again.", "danger")
+            
     return render_template('login.html', params=wparams)
 
+@app.route("/dashboard")
+def dashboard():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return render_template("index.html", params=wparams)
 
-@app.route("/prediction", methods=['GET', 'POST'])
+@app.route("/prediction", methods=['POST'])
 def prediction():
+    if 'user' not in session:
+        return redirect(url_for('index'))
     
-    if request.method == "POST":
+    if model_handler is None:
+        return "Model not loaded. Please contact administrator.", 500
 
-        
-        # state = request.form.get('state')
-        sex = request.form.get('sex')
-        # Area_code = request.form.get('Area_code')
-        age = request.form.get('age')
-        address = request.form.get('address')
-        Medu = request.form.get('Medu')
-        Fedu = request.form.get('Fedu')
-        traveltime = request.form.get('traveltime')
-        #Total_day_charge = request.form.get('Total_day_charge')
-        failures = request.form.get('failures')
-        paid = request.form.get('paid')
-        #Total_eve_charge = request.form.get('Total_eve_charge')
-        higher = request.form.get('higher')
-        internet = request.form.get('internet')
-        #Total_night_charge = request.form.get('Total_night_charge')
-        goout = request.form.get('goout')
-        G1 = request.form.get('G1')
-        G2 = request.form.get('G2')
-        #Total_intl_charge = request.form.get('Total_intl_charge')
-        
+    # Collect form data
+    form_data = {
+        'sex': request.form.get('sex'),
+        'age': request.form.get('age'),
+        'address': request.form.get('address'),
+        'Medu': request.form.get('Medu'),
+        'Fedu': request.form.get('Fedu'),
+        'traveltime': request.form.get('traveltime'),
+        'failures': request.form.get('failures'),
+        'paid': request.form.get('paid'),
+        'higher': request.form.get('higher'),
+        'internet': request.form.get('internet'),
+        'goout': request.form.get('goout'),
+        'G1': request.form.get('G1'),
+        'G2': request.form.get('G2')
+    }
 
-        #print(float(Total_day_charge[:]))
+    # Perform prediction
+    result = model_handler.predict(form_data)
+    importance = model_handler.get_feature_importance()
+    
+    if result is None:
+        flash("Error during prediction. Please check your inputs.", "danger")
+        return redirect(url_for('dashboard'))
 
-        
-        
-        #TEST=preprocess(float(Total_day_charge[:]),float(Total_eve_charge[:]),float(Total_night_charge[:]),float(Total_intl_charge[:]),int(International_plan[:]),int(Customer_service_calls[:]))
-        predict=model_predict(sex, age, address, Medu, Fedu, traveltime, failures,
-       paid, higher, internet, goout, G1, G2,Model) #pred[0]
-        
+    # Format result for display
+    prediction_text = f"Score Category: {result}"
+    
+    return render_template('prediction.html', 
+                           prediction_text=prediction_text, 
+                           importance=importance)
 
-        return render_template('prediction.html',prediction_text='Prediction {}'.format(predict))
+@app.route("/logout")
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
 
-
-app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True, port=int(os.environ.get('PORT', 5000)))

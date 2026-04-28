@@ -1,172 +1,176 @@
 {% extends "basic.html" %}
 {% block body %}
-<style>
-        #upload{
-                background-color: rgb(51, 0, 255);
-        }
-        #form{
-                margin-top: 4px;
-                margin-bottom: 100px;
-        }
-        .btn-primary {
-          margin-top: 4px;  
-        }
-        
-        
-</style>
+<div class="container py-5 animate-fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="glass-card">
+                <div class="d-flex align-items-center mb-5">
+                    <div class="me-4 p-3 rounded-circle bg-primary bg-opacity-10 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </div>
+                    <div>
+                        <h2 class="fw-bold mb-1">Predict Performance</h2>
+                        <p class="text-secondary mb-0">Fill in the student metrics to generate an AI prediction</p>
+                    </div>
+                </div>
 
-<div class="container" id="form" style="border:2px solid black;">
-        <form action="/prediction" method="post">
-                <table class="table table-white table-hover">
-                        
-                                <thead>
-                                  <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">First</th>
-                                    <th scope="col">Last</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  
-                                  <tr>
-                                    <th scope="row">1</th>
-                                    <td><label for="sex" class="form-label">sex</label></td>
-                                    <td><select name="sex" id="sex">
-                                      <option selected >select</option>
-                                      <option value="1">Male</option>
-                                      <option value="0">Female</option>
-                                    </select></td>
-                                  </tr> 
+                <form action="/prediction" method="post">
+                    <div class="row g-4">
+                        <!-- Demographics -->
+                        <div class="col-md-6">
+                            <h5 class="mb-4 text-primary fw-bold small text-uppercase">Demographics</h5>
+                            
+                            <div class="mb-4">
+                                <label for="sex" class="form-label text-secondary small fw-bold">Gender</label>
+                                <select name="sex" id="sex" class="form-select">
+                                    <option selected disabled>Select Gender</option>
+                                    <option value="1">Male</option>
+                                    <option value="0">Female</option>
+                                </select>
+                            </div>
 
-                                  <tr>
-                                    <th scope="row">2</th>
-                                    <td><label for="age" class="form-label">age(15-22)</label></td>
-                                    <td><input type="number" class="form-control" name="age" id="age"></td>
-                                  </tr>
-                                
-                                  <tr>
-                                    <th scope="row">3</th>
-                                    <td><label for="address" class="form-label">address</label></td>
-                                    <td><select name="address" id="address">
-                                      <option selected >select</option>
-                                      <option value="1">U</option>
-                                      <option value="0">R</option>
-                                    </select></td>
-                                  </tr>
-                                  <tr>
-                                    <th scope="row">4</th>
-                                    <td><label for="Medu" class="form-label">Mother's Education</label></td>
-                                    <td><select name="Medu" id="Medu">
-                                      <option selected >select</option>
-                                      <option value="0"> none </option>
-                                      <option value="1">primary education (4th grade)</option>
-                                      <option value="2">5th to 9th grade</option>
-                                      <option value="3">secondary education</option>
-                                      <option value="4">higher education</option>
-                                    </select></td>
-                                  </tr> 
-                                  <tr>
-                                    <th scope="row">5</th>
-                                    <td><label for="Fedu" class="form-label">Father's Education</label></td>
-                                    <td><select name="Fedu" id="Fedu">
-                                      <option selected >select</option>
-                                      <option value="0">none</option>
-                                      <option value="1">primary education (4th grade)</option>
-                                      <option value="2">(5th to 9th grade</option>
-                                      <option value="3">secondary education</option>
-                                      <option value="4">higher education</option>
-                                    </select></td>
-                                  </tr> 
-                                  <tr>
-                                    <th scope="row">6</th>
-                                    <td><label for="traveltime" class="form-label">traveltime from collage to home</label></td>
-                                    <td><select name="traveltime" id="traveltime">
-                                      <option selected >select</option>
-                                      
-                                      <option value="1"> 15 min</option>
-                                      <option value="2"> 15 to 30 min</option>
-                                      <option value="3"> 30 min to 1 hour</option>
-                                      <option value="4"> 1 hour</option>
-                                  </tr> 
-                                  <tr>
-                                    <th scope="row">7</th>
-                                    <td><label for="failures" class="form-label">No of time failures</label></td>
-                                    <td><select name="failures" id="failures">
-                                      <option selected >select</option>
-                                      <option value="0">0</option>
-                                      <option value="1">1</option>
-                                      <option value="2">2</option>
-                                      <option value="3">3</option>
-                                      
-                                    </select></td>
-                                  </tr> 
-                               
-                                  <tr>
-                                    <th scope="row">8</th>
-                                    <td><label for="paid" class="form-label">extra class</label></td>
-                                    <td><select name="paid" id="paid">
-                                      <option selected >select</option>
-                                      <option value="1">Yes</option>
-                                      <option value="0">No</option>
-                                    </select></td>
-                                  </tr> 
-                                  <tr>
-                                    <th scope="row">9</th>
-                                    <td><label for="higher" class="form-label">higher education</label></td>
-                                    <td><select name="higher" id="higher">
-                                      <option selected >select</option>
-                                      <option value="1">Yes</option>
-                                      <option value="0">No</option>
-                                    </select></td>
-                                  </tr> 
-                                  <tr>
-                                    <th scope="row">10</th>
-                                    <td><label for="internet" class="form-label">Have internet connection</label></td>
-                                    <td><select name="internet" id="internet">
-                                      <option selected >select</option>
-                                      <option value="1">Yes</option>
-                                      <option value="0">No</option>
-                                    </select></td>
-                                  </tr> 
-                                  <tr>
-                                    <th scope="row">11</th>
-                                    <td><label for="goout" class="form-label">Going out with Friend</label></td>
-                                    <td><select name="goout" id="goout">
-                                      <option selected >select</option> 
-                                      
-                                      <option value="1"> very low</option>
-                                      <option value="2"> low</option>
-                                      <option value="3"> sometime</option>
-                                      <option value="4"> high</option>
-                                      <option value="5"> very high</option>
-                                  </tr> 
-                                  </tr>
-                                 
-                                  <tr>
-                                    <th scope="row">12</th>
-                                    <td><label for="G1" class="form-label">last year grade(0 - 10)</label></td>
-                                    <td><input type="number"  name="G1" class="form-control" id="G1"></td>
-                                  </tr> 
-                                  <tr>
-                                    <th scope="row">13</th>
-                                    <td><label for="G2" class="form-label">second last grade(0 - 10)</label></td>
-                                    <td><input type="number" name="G2" class="form-control" id="G2"></td>
-                                  </tr> 
-                                 
-                                 
-                                </tbody>
-                              
-                      </table>
-                      
-                <button class="btn btn-primary float-end" type="submit" id="msg">Predict</button>
-                      
-        </form>
+                            <div class="mb-4">
+                                <label for="age" class="form-label text-secondary small fw-bold">Age (15-22)</label>
+                                <input type="number" class="form-control" name="age" id="age" min="15" max="22" placeholder="e.g. 18">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="address" class="form-label text-secondary small fw-bold">Address Type</label>
+                                <select name="address" id="address" class="form-select">
+                                    <option selected disabled>Select Address</option>
+                                    <option value="1">Urban (U)</option>
+                                    <option value="0">Rural (R)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Family Background -->
+                        <div class="col-md-6">
+                            <h5 class="mb-4 text-primary fw-bold small text-uppercase">Family Background</h5>
+                            
+                            <div class="mb-4">
+                                <label for="Medu" class="form-label text-secondary small fw-bold">Mother's Education</label>
+                                <select name="Medu" id="Medu" class="form-select">
+                                    <option selected disabled>Select Level</option>
+                                    <option value="0">None</option>
+                                    <option value="1">Primary (4th grade)</option>
+                                    <option value="2">5th to 9th grade</option>
+                                    <option value="3">Secondary</option>
+                                    <option value="4">Higher Education</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="Fedu" class="form-label text-secondary small fw-bold">Father's Education</label>
+                                <select name="Fedu" id="Fedu" class="form-select">
+                                    <option selected disabled>Select Level</option>
+                                    <option value="0">None</option>
+                                    <option value="1">Primary (4th grade)</option>
+                                    <option value="2">5th to 9th grade</option>
+                                    <option value="3">Secondary</option>
+                                    <option value="4">Higher Education</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-10">
+
+                        <!-- Lifestyle & School -->
+                        <div class="col-md-6">
+                            <h5 class="mb-4 text-primary fw-bold small text-uppercase">Lifestyle & School</h5>
+                            
+                            <div class="mb-4">
+                                <label for="traveltime" class="form-label text-secondary small fw-bold">Travel Time</label>
+                                <select name="traveltime" id="traveltime" class="form-select">
+                                    <option selected disabled>Select Time</option>
+                                    <option value="1">< 15 min</option>
+                                    <option value="2">15 - 30 min</option>
+                                    <option value="3">30 min - 1 hr</option>
+                                    <option value="4">> 1 hr</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="goout" class="form-label text-secondary small fw-bold">Frequency of Going Out</label>
+                                <select name="goout" id="goout" class="form-select">
+                                    <option selected disabled>Select Frequency</option>
+                                    <option value="1">Very Low</option>
+                                    <option value="2">Low</option>
+                                    <option value="3">Moderate</option>
+                                    <option value="4">High</option>
+                                    <option value="5">Very High</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4 d-flex gap-4">
+                                <div class="flex-grow-1">
+                                    <label for="internet" class="form-label text-secondary small fw-bold">Internet Access</label>
+                                    <select name="internet" id="internet" class="form-select">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <label for="higher" class="form-label text-secondary small fw-bold">Higher Edu. Aim</label>
+                                    <select name="higher" id="higher" class="form-select">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance -->
+                        <div class="col-md-6">
+                            <h5 class="mb-4 text-primary fw-bold small text-uppercase">Performance Data</h5>
+                            
+                            <div class="mb-4">
+                                <label for="failures" class="form-label text-secondary small fw-bold">Previous Class Failures</label>
+                                <select name="failures" id="failures" class="form-select">
+                                    <option value="0">None</option>
+                                    <option value="1">1 Time</option>
+                                    <option value="2">2 Times</option>
+                                    <option value="3">3+ Times</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="G1" class="form-label text-secondary small fw-bold">Grade Period 1 (0-20)</label>
+                                <input type="number" name="G1" class="form-control" id="G1" min="0" max="20" placeholder="0-20">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="G2" class="form-label text-secondary small fw-bold">Grade Period 2 (0-20)</label>
+                                <input type="number" name="G2" class="form-control" id="G2" min="0" max="20" placeholder="0-20">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 d-flex justify-content-between align-items-center">
+                        <div class="text-secondary small">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            Predictions are based on Random Forest Classifier.
+                        </div>
+                        <button class="btn btn-primary px-5 py-3" type="submit" id="predictBtn">
+                            Generate Prediction
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
 <script>
-        let msg = document.getElementById('msg')
-msg.addEventListener('click',function(){
-  alert('Your Imsex file successfully submited. Wait for the prediction');  
-document.loG1tion = '/prediction'
+document.getElementById('predictBtn').addEventListener('click', function(e) {
+    // Basic validation check before submit
+    const inputs = document.querySelectorAll('input, select');
+    let valid = true;
+    inputs.forEach(input => {
+        if (input.hasAttribute('required') && !input.value) {
+            valid = false;
+        }
+    });
 });
-</script> 
+</script>
 {% endblock %}

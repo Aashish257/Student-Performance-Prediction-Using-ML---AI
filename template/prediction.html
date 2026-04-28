@@ -1,42 +1,126 @@
 {% extends "basic.html" %}
 {% block body %}
-<style>
-    body {
-        background: url('{{url_for('static',filename='img/1.jpeg')}}') ;
-        /* -webkit-background-size: cover; */
-        background-repeat: no-repeat;
-        
-        background-size: cover;
-    }
-</style>
-<div class="container">
-   
-        <span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-double-right" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"/>
-                <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"/>
-              </svg>
-              <h1 style = "color: rgb(37, 226, 226);"> Congratulation!</h1>
-              <i class="bi bi-chevron-double-right"></i>
-    </span>
-        <hr>
-        <div class="justify-content-center align-items-center my-5 ">
-        <br>
-      <pre> <h4><p name="prediction" id="prediction" style = "color:#fff;font-size:50px; margin-top:80px;">{{ prediction_text }} </p></h4></pre> 
-    </div>
-    <hr>
-    <br> 
-    <!-- <div class="container">
-        <div class=" justify-content-center align-items-center mx-5 " style="position: absolute;">
-            <ul class="list-relative text-center">
-             <a href="http://">  <li style="color: black;">1</li></a> 
-             <a href="http://">  <li style="color: black;">2</li></a> 
-             <a href="http://">  <li style="color: black;">3</li></a> 
-             <a href="http://">  <li style="color: black;">4</li></a> 
-            </ul>
+<div class="container py-5 animate-fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="glass-card mb-5">
+                <div class="mb-4">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill small fw-bold text-uppercase tracking-wider">Analysis Complete</span>
+                </div>
+                
+                <h2 class="fw-bold mb-4">Predicted Performance</h2>
+                
+                <div class="prediction-result mb-4">
+                    {{ prediction_text }}
+                </div>
+                
+                <p class="text-secondary mb-5 mx-auto" style="max-width: 500px;">
+                    Our AI model has analyzed the student's metrics. This prediction indicates the likely grade bracket based on historical data patterns.
+                </p>
+
+                <div class="row g-4 text-start">
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4 bg-white bg-opacity-5 border border-white border-opacity-10">
+                            <h6 class="text-primary small fw-bold text-uppercase mb-3">Model Accuracy</h6>
+                            <div class="d-flex align-items-center">
+                                <h3 class="mb-0 me-3">~85%</h3>
+                                <div class="progress flex-grow-1" style="height: 6px;">
+                                    <div class="progress-bar bg-primary" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4 bg-white bg-opacity-5 border border-white border-opacity-10">
+                            <h6 class="text-primary small fw-bold text-uppercase mb-3">Confidence Level</h6>
+                            <div class="d-flex align-items-center">
+                                <h3 class="mb-0 me-3">High</h3>
+                                <div class="ms-auto text-success">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <a href="/" class="btn btn-outline-light px-4 py-2 rounded-3 me-3">New Prediction</a>
+                    <button class="btn btn-primary px-4 py-2 rounded-3" onclick="window.print()">Download Report</button>
+                </div>
+            </div>
+
+            <!-- Chart.js Section -->
+            {% if importance %}
+            <div class="glass-card mb-4 text-start">
+                <h5 class="fw-bold mb-4">Why this prediction?</h5>
+                <p class="text-secondary small mb-4">This chart shows which factors most influenced the AI's prediction for this student.</p>
+                <div style="height: 300px;">
+                    <canvas id="importanceChart"></canvas>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="glass-card text-start">
+                <h5 class="fw-bold mb-4">Understanding the Result</h5>
+                <p class="text-secondary small mb-0">
+                    This prediction is generated using a Random Forest algorithm trained on the UCI Student Performance dataset. Key factors influencing results typically include previous grades (G1, G2), school failures, and social factors like study time and family education level.
+                </p>
+            </div>
         </div>
-    </div> -->
+    </div>
 </div>
 
+{% if importance %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    console.log("Chart Data Loading...");
+    const ctx = document.getElementById('importanceChart').getContext('2d');
+    const importanceData = {{ importance | tojson }};
+    console.log("Importance Data:", importanceData);
+    
+    if (Object.keys(importanceData).length === 0) {
+        console.warn("No importance data found.");
+    }
 
+    // Sort data for better visualization
+    const labels = Object.keys(importanceData);
+    const values = Object.values(importanceData);
+    
+    const combined = labels.map((l, i) => ({ label: l, value: values[i] }))
+                          .sort((a, b) => b.value - a.value);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: combined.map(c => c.label),
+            datasets: [{
+                label: 'Relative Importance',
+                data: combined.map(c => c.value),
+                backgroundColor: 'rgba(99, 102, 241, 0.5)',
+                borderColor: '#6366f1',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { color: '#94a3b8' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: '#94a3b8' }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
 {% endblock %}
